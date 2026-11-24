@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f3ecf7">
+  <title>金乡蒜礼手作室 · 把金乡丰收扎成一束</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="phone-viewport">
+    <div class="app-shell" id="appShell">
+
+      <!-- ==================== 顶部悬浮小程序 HUD ==================== -->
+      <header class="top-bar" id="topBar">
+        <div class="brand-pill">
+          <img class="brand-logo" src="assets/festival-logo.png" alt="金乡大蒜节">
+        </div>
+        <div class="util-pill">
+          <button id="guideBtn">玩法</button>
+          <i></i>
+          <button id="bgmToggle">音乐 开</button>
+          <i></i>
+          <button id="sfxToggle">音效 开</button>
+        </div>
+      </header>
+
+      <!-- 悬浮磨砂进度条（连接圆点） -->
+      <nav class="stepper-bar" id="stepperBar" aria-label="手作步骤">
+        <div class="stepper-track">
+          <div class="stepper-line"></div>
+          <ol class="stepper-list" id="stepperList">
+            <li data-step="1"><span>1</span><b>薅薹</b></li>
+            <li data-step="2"><span>2</span><b>拔蒜</b></li>
+            <li data-step="3"><span>3</span><b>扒皮</b></li>
+            <li data-step="4"><span>4</span><b>绕线</b></li>
+            <li data-step="5"><span>5</span><b>扎花</b></li>
+            <li data-step="6"><span>6</span><b>包装</b></li>
+            <li data-step="7"><span>7</span><b>心意</b></li>
+            <li data-step="8"><span>8</span><b>系结</b></li>
+            <li data-step="9"><span>9</span><b>成礼</b></li>
+          </ol>
+        </div>
+      </nav>
+
+      <!-- 当前步骤小提示条 + 重玩按钮 -->
+      <div class="sub-bar" id="subBar">
+        <div class="hint-pill" id="stepHintPill">
+          <span class="hint-dot"></span>
+          <span id="stepHintText">按住蒜薹向上提，连抽 3 把青绿</span>
+        </div>
+        <button id="restartBtn" class="circle-btn" title="重新开始" aria-label="重新开始">↺</button>
+      </div>
+
+      <!-- ==================== 中央主舞台（所有关卡竖屏切换） ==================== -->
+      <main class="main-stage">
+
+        <!-- 关卡 1~3：蒜田采收 -->
+        <section class="scene" id="scene-harvest">
+          <div class="stage-center">
+            <div id="harvestStage" class="harvest-stage" data-step="0">
+              <img class="harvest-field" src="assets/garlic-fields.png" alt="">
+              <div class="farmer-badge">
+                <img id="farmerArt" src="assets/farmer-1.svg" alt="金乡蒜农">
+                <span id="farmerCaption">薹长好了</span>
+              </div>
+              <div id="harvestAction" class="harvest-action stage-0" role="button" tabindex="0">
+                <img id="harvestMaterial" src="assets/flower-3.png" alt="">
+                <div id="peelPatches" hidden><span></span><span></span><span></span></div>
+                <div class="gesture-pill" id="gestureHint">按住向上提 ↑</div>
+              </div>
+              <div class="harvest-soil"></div>
+              <div id="harvestClearBanner" class="clear-banner" hidden></div>
+            </div>
+          </div>
+
+          <div class="bottom-dock">
+            <div class="dock-status">
+              <div class="status-top">
+                <strong id="harvestTitle">薅一把青绿蒜薹</strong>
+                <em id="harvestProgressVal">0 / 3 把</em>
+              </div>
+              <div class="meter-track"><div class="meter-fill" id="harvestMeter"></div></div>
+              <p class="status-sub" id="harvestFeedback">捏住蒜薹向上提（也可轻点）</p>
+            </div>
+            <button id="harvestNextBtn" class="dock-cta" disabled>🔒 未完成</button>
+          </div>
+        </section>
+
+        <!-- 关卡 4：绕毛线蒜薹 -->
+        <section class="scene" id="scene-4">
+          <div class="stage-center">
+            <div class="craft-frame">
+              <canvas id="craftCanvas" width="680" height="680" aria-label="绕毛线蒜薹画布"></canvas>
+              <span id="craftNeedle" hidden>⌁</span>
+            </div>
+          </div>
+
+          <div class="bottom-dock vertical-dock">
+            <div class="dock-row-between">
+              <div class="color-dots" id="craftColors"></div>
+              <div class="mini-actions">
+                <button id="undoCraft" class="pill-btn" disabled>↶ 撤回</button>
+                <button id="clearCraft" class="pill-btn">重绕</button>
+              </div>
+            </div>
+            <div class="dock-pair">
+              <div class="dock-status compact">
+                <div class="status-top">
+                  <strong>绕一枝毛线蒜薹</strong>
+                  <em id="craftProgressVal">0%</em>
+                </div>
+                <div class="meter-track"><div class="meter-fill" id="craftMeter"></div></div>
+              </div>
+              <button id="craftNextBtn" class="dock-cta" disabled>🔒 绕好解锁</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 关卡 5：扎花束 -->
+        <section class="scene" id="scene-5">
+          <div class="stage-center arrange-stage">
+            <div class="canvas-frame">
+              <span class="paper-tape"></span>
+              <canvas id="bouquetCanvas" width="900" height="1200" aria-label="花束创作画布"></canvas>
+            </div>
+          </div>
+
+          <div class="bottom-dock vertical-dock arrange-dock">
+            <!-- 底部小标签：加花材 / 包装示例 / 调选中 -->
+            <div class="dock-tabs" id="arrangeDockTabs">
+              <button class="active" data-pane="materials">✿ 加花材</button>
+              <button data-pane="presets">✦ 包装示例</button>
+              <button data-pane="inspect" id="inspectTabBtn">⚙ 调位置/图层</button>
+            </div>
+
+            <!-- 面板A：横向滚动蒜材 -->
+            <div class="dock-pane" id="pane-materials">
+              <div class="h-scroll-grid" id="assetGrid"></div>
+            </div>
+
+            <!-- 面板B：4款包装好的花束示例 -->
+            <div class="dock-pane" id="pane-presets" hidden>
+              <div class="preset-strip" id="presetGrid"></div>
+            </div>
+
+            <!-- 面板C：选中花材调节（大小/角度/4项图层/取下） -->
+            <div class="dock-pane" id="pane-inspect" hidden>
+              <div id="noStemTip" class="empty-inspect">轻点上方画布里的任意花材，即可调节大小、角度和图层顺序。</div>
+              <div id="stemControls" hidden>
+                <div class="sliders-row">
+                  <label>大小 <input type="range" id="sizeRange" min="0.55" max="1.45" step="0.01"></label>
+                  <label>角度 <input type="range" id="angleRange" min="-65" max="65" step="1"></label>
+                </div>
+                <div class="layer-bar">
+                  <button id="layerTopBtn" class="pill-btn">置于顶层</button>
+                  <button id="layerUpBtn" class="pill-btn">上移一层</button>
+                  <button id="layerDownBtn" class="pill-btn">下移一层</button>
+                  <button id="layerBottomBtn" class="pill-btn">置于底层</button>
+                  <button id="removeStemBtn" class="pill-btn danger">取下</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="dock-pair">
+              <div class="dock-status compact">
+                <div class="status-top">
+                  <strong id="stemStatusLabel">已放 2 / 4 枝花材</strong>
+                  <button id="undoArrangeBtn" class="text-link" disabled>↶ 撤销</button>
+                </div>
+                <p class="status-sub" id="selectedName">点选花材可拖动，至少 4 枝解锁下一步</p>
+              </div>
+              <button id="arrangeNextBtn" class="dock-cta" disabled>🔒 再添 2 枝</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 关卡 6：选包装纸、丝带与金乡礼签（贺卡） -->
+        <section class="scene" id="scene-6">
+          <div class="stage-center">
+            <div class="canvas-frame">
+              <span class="paper-tape"></span>
+              <canvas id="wrapPreviewCanvas" width="900" height="1200" aria-label="包装预览"></canvas>
+            </div>
+          </div>
+
+          <div class="bottom-dock vertical-dock">
+            <div class="wrap-controls">
+              <div class="swatch-line">
+                <span>包装纸</span>
+                <div class="swatch-row" id="paperColors"></div>
+              </div>
+              <div class="swatch-line">
+                <span>丝带</span>
+                <div class="swatch-row" id="ribbonColors"></div>
+              </div>
+              <div class="swatch-line">
+                <span>背景</span>
+                <div class="swatch-row" id="bgColors"></div>
+                <label class="pattern-chip"><input type="checkbox" id="patternToggle" checked> 田垄纹</label>
+              </div>
+              <div class="landmark-row" id="landmarkChoices"></div>
+            </div>
+            <div class="dock-pair">
+              <div class="dock-status compact">
+                <strong>挑选包装与金乡礼签</strong>
+                <p class="status-sub">点选上方配色与贺卡，实时预览效果</p>
+              </div>
+              <button id="wrapNextBtn" class="dock-cta ready">去写心意 ▸</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 关卡 7：写祝福语与落款 -->
+        <section class="scene" id="scene-7">
+          <div class="stage-center note-stage">
+            <div class="canvas-frame small-preview">
+              <span class="paper-tape"></span>
+              <canvas id="notePreviewCanvas" width="900" height="1200" aria-label="心意海报预览"></canvas>
+            </div>
+          </div>
+
+          <div class="bottom-dock vertical-dock">
+            <div class="note-inputs">
+              <div class="input-row-2">
+                <label>送给谁
+                  <input id="recipientInput" maxlength="14" placeholder="正在发芽的自己">
+                </label>
+                <label>你的落款
+                  <input id="senderInput" maxlength="12" placeholder="你的名字">
+                </label>
+              </div>
+              <label class="msg-field">祝福语（44字以内）
+                <input id="messageInput" maxlength="44" placeholder="写一句只有你会说的话…">
+              </label>
+              <div class="quote-chips" id="quoteChips"></div>
+            </div>
+            <div class="dock-pair">
+              <div class="dock-status compact">
+                <strong>写一句祝福与落款</strong>
+                <p class="status-sub">文字会实时印在最终蒜礼海报上</p>
+              </div>
+              <button id="noteNextBtn" class="dock-cta ready">去亲手包扎 ▸</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 关卡 8：包扎与系蝴蝶结仪式 -->
+        <section class="scene" id="scene-8">
+          <div class="stage-center">
+            <div class="ritual-stage" id="ritualStage">
+              <canvas id="ritualCanvas" width="600" height="800"></canvas>
+              <div id="foldLeft" class="fold-sheet left" role="button" tabindex="0"><span>拖向中间 →</span></div>
+              <div id="foldRight" class="fold-sheet right" role="button" tabindex="0"><span>← 拖向中间</span></div>
+              <div id="foldTarget" class="fold-target">♡</div>
+
+              <div id="ribbonGame" hidden>
+                <svg viewBox="0 0 360 280" class="knot-guide">
+                  <path d="M180 175 C25 45 35 245 180 175 C325 55 330 250 180 175"/>
+                </svg>
+                <span class="loop-target left">左边小耳朵</span>
+                <span class="loop-target right">右边小耳朵</span>
+                <button class="ribbon-handle left" id="tieLeft">拉我</button>
+                <button class="ribbon-handle right" id="tieRight">拉我</button>
+                <span id="finishedBow" hidden>⋈</span>
+              </div>
+
+              <div id="ritualCard" class="ritual-card" hidden>
+                <small>这一束，藏着你的心意</small>
+                <strong id="revealMessage"></strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-dock">
+            <div class="dock-status">
+              <div class="status-top">
+                <strong id="ritualTitle">轻轻折起包装纸</strong>
+                <em id="ritualBadge">0 / 2</em>
+              </div>
+              <p class="status-sub" id="ritualHint">把左右两片包装纸拖向中间（或轻点）</p>
+            </div>
+            <button id="ritualNextBtn" class="dock-cta" disabled>🔒 待包扎</button>
+          </div>
+        </section>
+
+        <!-- 关卡 9：成礼海报结算 -->
+        <section class="scene" id="scene-9">
+          <div class="stage-center result-stage">
+            <div class="poster-frame">
+              <span class="paper-tape"></span>
+              <canvas id="posterCanvas" width="1200" height="1600"></canvas>
+            </div>
+          </div>
+
+          <div class="bottom-dock vertical-dock">
+            <div class="result-cta-row">
+              <button id="downloadPosterBtn" class="dock-cta ready full-cta">保存高清蒜礼海报 ✧</button>
+            </div>
+            <div class="result-sub-row">
+              <button id="copyCopyBtn" class="pill-btn flex1">复制分享文案</button>
+              <button id="playAgainBtn" class="pill-btn flex1">再做一束 ↺</button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- ==================== 全屏竖版封面页（延续原版紫绿毛绒美学） ==================== -->
+      <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="cover-bg">
+          <img class="cover-field" src="assets/garlic-fields.png" alt="">
+        </div>
+        <button id="coverBgmBtn" class="cover-bgm-btn" aria-label="开关舒缓音乐">🎵 舒缓音乐：开</button>
+
+        <div class="cover-vertical">
+          <div class="cover-top">
+            <img class="cover-logo" src="assets/festival-logo.png" alt="金乡大蒜节">
+            <p class="cover-eyebrow">JINXIANG GARLIC HARVEST MINI-GAME</p>
+            <h1>把金乡丰收，<br><span>一步步</span>扎成一束。</h1>
+            <p class="cover-sub">从田间抽蒜薹、拔好蒜、扒蒜皮，到亲手绕毛线、扎花束、系蝴蝶结——完成每一步，亲手送出一份金乡蒜礼。</p>
+          </div>
+
+          <div class="cover-hero" aria-hidden="true">
+            <div class="hero-circle">
+              <img class="float-item f1" src="assets/flower-0.png" alt="">
+              <img class="float-item f2" src="assets/flower-2.png" alt="">
+              <img class="float-item f3" src="assets/flower-3.png" alt="">
+              <img class="float-item f4" src="assets/flower-5.png" alt="">
+              <img class="float-item f5" src="assets/flower-1.png" alt="">
+              <div class="hero-stamp">好蒜在金乡<br><strong>好事正发生</strong></div>
+            </div>
+          </div>
+
+          <div class="cover-bottom">
+            <button id="enterWithMusicBtn" class="cover-primary-btn">开始采收之旅 <span>▸</span></button>
+            <div class="cover-steps">
+              <span>① 薅蒜薹</span><i>·</i>
+              <span>② 拔好蒜</span><i>·</i>
+              <span>③ 扒蒜皮</span><i>·</i>
+              <span>④ 绕毛线</span><i>·</i>
+              <span>⑤ 扎花束</span><i>·</i>
+              <span>⑥ 选包装</span><i>·</i>
+              <span>⑦ 写心意</span><i>·</i>
+              <span>⑧ 系丝带</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 玩法说明弹窗 -->
+      <div class="modal-backdrop" id="guideModal" hidden>
+        <div class="guide-card">
+          <h3>手作玩法说明</h3>
+          <ol>
+            <li><strong>田间采收</strong>：依次完成薅蒜薹、拔好蒜、扒蒜皮。</li>
+            <li><strong>绕毛线蒜薹</strong>：在画布上亲手牵线绕出一枝专属蒜薹。</li>
+            <li><strong>扎花束</strong>：点选花材放入花束，可拖动、调大小角度与图层，也可一键参考包装示例。</li>
+            <li><strong>选包装 & 写心意</strong>：搭配包装纸、丝带、金乡礼签，写下祝福语与落款。</li>
+            <li><strong>包扎成礼</strong>：折起包装纸、系好蝴蝶结，生成并保存高清蒜礼海报。</li>
+          </ol>
+          <button id="closeGuideBtn" class="welcome-primary-btn">我知道了</button>
+        </div>
+      </div>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script>
+    if (location.protocol === 'file:') {
+      document.write('<script src="assets-data.js"><\/script>');
+    }
+  </script>
+  <script src="game.js"></script>
+</body>
+</html>
